@@ -7,6 +7,16 @@
 
 This library provides support for TypeScript/JavaScript [Gelato](https://www.gelato.com/)'s API. See full documentation on [Gelato API docs](https://dashboard.gelato.com/docs).
 
+## Current Status & V4 API Integration
+
+This SDK currently primarily targets Gelato's V3 API for most functionalities, particularly for Orders. 
+We are actively working on:
+- Investigating and integrating Gelato's V4 API endpoints.
+- Enhancing unit test coverage across all modules.
+- Finalizing ESLint configuration for improved code quality.
+
+For detailed information on our progress, V4 transition plans, and specific API considerations (such as V4 equivalents for certain V3 methods), please refer to our [ROADMAP.md](ROADMAP.md) file.
+
 ## Install
 
 ```sh
@@ -26,6 +36,8 @@ Before you can utilize the API you need:
 
 ```ts
 import { GelatoApi } from 'gelato-api';
+// Note: Specific type imports might be needed from 'gelato-api/dist/types' if using named types
+// e.g. import { OrderCreateRequest } from 'gelato-api/dist/types';
 
 const gelato = new GelatoApi({ apiKey: 'YOUR-API-KEY' });
 ```
@@ -34,26 +46,28 @@ const gelato = new GelatoApi({ apiKey: 'YOUR-API-KEY' });
 
 #### Catalogs & Products
 
+(These examples use the product API, which has some methods on older versions like v1, see `src/products/products.ts` for details. V4 product API integration is planned.)
+
 ```ts
 // Get all catalogs
 const allCatalogs = await gelato.products.getCatalogs();
 
 // Get specific catalog
-const cardCatalog = await gelato.products.getCatalog('cards');
+const cardCatalog = await gelato.products.getCatalog('cards'); // Example catalog UID
 
 // Get/Search products in catalog
 const cardProducts = await gelato.products.getProductsInCatalog('cards', { limit: 5 });
 
 // Get specific product
-const card1 = await gelato.products.getProduct('cards_pf_bb_pt_350...');
+const card1 = await gelato.products.getProduct('cards_pf_bb_pt_350...'); // Example product UID
 
 // Get cover dimensions
-const dims = await gelato.products.getCoverDimensions('photobooks-softcover_pf_140x...', {
+const dims = await gelato.products.getCoverDimensions('photobooks-softcover_pf_140x...', { // Example product UID
   pageCount: 30,
 });
 
 // Get prices
-const cardPrices = await gelato.products.getPrices('cards_pf_bb_pt_350...', {
+const cardPrices = await gelato.products.getPrices('cards_pf_bb_pt_350...', { // Example product UID
   country: 'SE',
   currency: 'SEK',
 });
@@ -67,6 +81,7 @@ const stockInfo = await gelato.products.getStockAvailability([
 
 #### Shipment Methods
 
+(This uses the V1 shipping methods endpoint.)
 ```ts
 // Get available shipment methods in Sweden
 const shipments = await gelato.shipment.getMethods({ country: 'SE' });
@@ -74,11 +89,12 @@ const shipments = await gelato.shipment.getMethods({ country: 'SE' });
 
 #### Orders
 
+(These examples use the V3 Orders API.)
 ```ts
-import { Gelato, GelatoApi } from 'gelato-api';
+import { OrderCreateRequest } from 'gelato-api/dist/types'; // Example direct type import
 
 // Create order
-const myOrder: Gelato.OrderCreateRequest = {
+const myOrder: OrderCreateRequest = { // Using imported type
   orderType: 'draft',
   orderReferenceId: 'my-internal-order-id',
   customerReferenceId: 'my-internal-customer-id',
@@ -86,9 +102,9 @@ const myOrder: Gelato.OrderCreateRequest = {
   items: [
     {
       itemReferenceId: 'my-internal-item-id',
-      productUid: 'cards_pf_bb_pt_350-gsm-coated-silk_cl_4-4_hor',
+      productUid: 'cards_pf_bb_pt_350-gsm-coated-silk_cl_4-4_hor', // Example product UID
       quantity: 1,
-      fileUrl: 'https://i1.sndcdn.com/artworks-000398776953-cwfbd0-t500x500.jpg',
+      fileUrl: 'https://example.com/path/to/your/file.pdf', // Replace with a valid URL
     },
   ],
   shippingAddress: {
@@ -104,22 +120,24 @@ const myOrder: Gelato.OrderCreateRequest = {
 const createdOrder = await gelato.orders.v3.create(myOrder);
 
 // And more...
-const createdOrder = await gelato.orders.v3.get('gelato-order-id');
-const foundOrders = await gelato.orders.v3.search({ ... });
+const anOrder = await gelato.orders.v3.get('gelato-order-id'); // Replace with actual order ID
+const foundOrders = await gelato.orders.v3.search({ customerReferenceId: 'my-internal-customer-id' });
 
-const patchedOrder = await gelato.orders.v3.patchDraft('gelato-order-id', { orderType: 'order'});
-const updatedOrder = await gelato.orders.v3.update('gelato-order-id', { ... });
+const patchedOrder = await gelato.orders.v3.patchDraft('gelato-draft-order-id', [{ op: 'replace', path: '/customerReferenceId', value: 'new-customer-ref' }]);
+// Note: For full order updates on confirmed orders, V4 API considerations apply. See ROADMAP.md.
+const updatedOrder = await gelato.orders.v3.update('gelato-order-id', { /* ... partial order data ... */ });
 
-await gelato.orders.v3.deleteDraft('gelato-order-id');
+await gelato.orders.v3.deleteDraft('gelato-draft-order-id');
 await gelato.orders.v3.cancel('gelato-order-id');
 
-const quotedOrder = await gelato.orders.v3.quote({ ... });
+const quoteResponse = await gelato.orders.v3.quote({ /* ... quote request data ... */ });
 const shippingAddress = await gelato.orders.v3.getShippingAddress('gelato-order-id');
-const updatedShippingAddress = await gelato.orders.v3.updateShippingAddress('gelato-order-id', { ... });
+// Note: For updating shipping addresses, V4 API considerations apply (e.g., PATCH method). See ROADMAP.md.
+const updatedShippingAddress = await gelato.orders.v3.updateShippingAddress('gelato-order-id', { /* ... new address data ... */ });
 ```
 
 > **_NOTE_**
-> Orders V2 is not supported for now.
+> Orders V2 is not supported. The focus is on V3 and future V4 integration.
 
 ## Run end-to-end tests
 
@@ -134,5 +152,9 @@ To run the e2e tests, follow these steps:
    # or
    yarn test:e2e
    ```
+
+## Project Roadmap
+
+For more details on the project's current status, planned improvements, and V4 API integration efforts, please see our [ROADMAP.md](ROADMAP.md) file.
 
 ## Go nuts! 🥳

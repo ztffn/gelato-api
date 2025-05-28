@@ -1,5 +1,4 @@
-export namespace Gelato {
-  export interface Config {
+export interface Config {
     apiKey: string;
   }
 
@@ -26,7 +25,7 @@ export namespace Gelato {
     value: number;
     measureUnit: string;
   }
-  interface ProductBase {
+export interface ProductBase {
     productUid: string;
     attributes: { [name: string]: string };
     weight: MeasureUnit;
@@ -49,7 +48,7 @@ export namespace Gelato {
 
   export interface ProductCoverDimension {
     productUid: string;
-    pagesCount: number; // Renamed from pageCount to match Product API v3 docs
+    pageCount: number;
     measureUnit: string;
     wraparoundInsideSize?: ProductDimensionAttribute;
     wraparoundEdgeSize?: ProductDimensionAttribute;
@@ -92,14 +91,13 @@ export namespace Gelato {
     | 'not-supported';
 
   export interface ShipmentMethod {
-    // Based on Shipment API v1
     shipmentMethodUid: string;
-    type: ShipmentType; // "normal", "express", "pallet"
+    type: ShipmentType;
     name: string;
     isBusiness: boolean;
     isPrivate: boolean;
     hasTracking: boolean;
-    supportedCountries: string[]; // ISO 3166-1 alpha-2
+    supportedCountries: string[];
   }
 
   export type ShipmentType = 'normal' | 'express' | 'pallet';
@@ -108,121 +106,125 @@ export namespace Gelato {
 
   export type OrderFulfillmentStatus =
     | 'created'
-    | 'uploading'
     | 'passed'
-    | 'in_production'
-    | 'printed'
-    | 'draft'
     | 'failed'
     | 'canceled'
-    | 'pending_approval'
-    | 'pending_personalization'
-    | 'digitizing'
-    | 'not_connected'
-    | 'on_hold'
+    | 'printed'
     | 'shipped'
-    | 'in_transit'
-    | 'delivered'
-    | 'returned';
+    | 'draft'
+    | 'pending_approval'
+    | 'not_connected'
+    | 'on_hold';
 
   export type OrderFinancialStatus =
-    | 'draft'
-    | 'pending'
-    | 'invoiced'
-    | 'to_be_invoiced'
-    | 'paid'
+    | 'created'
+    | 'passed'
+    | 'failed'
     | 'canceled'
-    | 'partially_refunded'
-    | 'refunded'
-    | 'refused';
+    | 'printed'
+    | 'shipped'
+    | 'draft'
+    | 'pending_approval'
+    | 'not_connected'
+    | 'on_hold';
 
   export interface OrderCreateRequest {
-    // Aligned with v4 "Create order"
+    /** Default: 'order' */
     orderType?: OrderType;
     orderReferenceId: string;
     customerReferenceId: string;
     currency: string;
+    shipmentMethodUid?: ShipmentType | string;
     items: OrderItemRequest[];
+    /** Max number of entries: 20 */
     metadata?: Metadata[];
     shippingAddress: OrderShippingAddress;
-    shipmentMethodUid?: string; // Can be general type like 'express' or specific UID, comma-separated for multiple fallbacks
     returnAddress?: OrderReturnAddress;
+    // -- Additional props found in actual response:
+    storeId?: string;
   }
-
   export interface Order extends OrderCreateRequest {
-    // Aligned with v4 "Get order" response
     id: string;
+    orderType: OrderType;
     fulfillmentStatus: OrderFulfillmentStatus;
     financialStatus: OrderFinancialStatus;
     channel: string;
-    storeId?: string;
     createdAt: string;
     updatedAt: string;
     orderedAt: string;
     items: OrderItem[];
     shipment?: OrderShipment;
     billingEntity?: OrderBillingEntity;
+    shippingAddress: OrderShippingAddress;
     receipts: OrderReceipt[];
+    // -- Additional props found in actual response:
+    receiptsIds?: string[];
+    refusalReason?: string;
+    orderedByUserId?: string;
+    retailCurrency?: string;
+    paymentMethodType?: string;
+    paymentMethodId?: string;
     connectedOrderIds?: string[];
-    iossNumber?: string;
-    refusalReasonCode?: string;
-    refusalReason?: string; // This was in old SDK, and v4 example for create order has refusalReason/refusalReasonCode in response
-    // @ts-ignore - discounts is in example response but not formal spec
-    discounts?: any[];
+    // @ts-expect-error API response structure may vary
+    discounts?: unknown[];
   }
-
   export interface OrderItemRequest {
-    // Aligned with v4 "Create order" -> "ItemObject"
     itemReferenceId: string;
     productUid: string;
     quantity: number;
     pageCount?: number;
-    files?: FileObject[];
-    adjustProductUidByFileTypes?: boolean;
+    fileUrl?: string;
   }
-
   export interface OrderItem extends OrderItemRequest {
-    // Aligned with v4 "Get order" -> "ItemObject"
     id: string;
     fulfillmentStatus: OrderFulfillmentStatus;
-    processedFileUrl: string; // Can be null initially
+    fileUrl: string;
+    processedFileUrl: string;
     previews: OrderItemPreview[];
-    options?: OrderItemOptions[];
-    metadata?: Metadata[]; // In Order Create response example, not Get Order ItemObject spec, but often useful.
+    options: OrderItemOptions[];
+    // -- Additional props found in actual response:
+    category?: string;
+    productCategoryUid?: string;
+    productTypeUid?: string;
+    productNameUid?: string;
+    productName?: string;
+    // @ts-expect-error API response structure may vary
+    printJobs?: unknown[];
+    // @ts-expect-error API response structure may vary
+    eventLog?: unknown[];
+    metadata?: Metadata[];
+    attributes?: OrderItemAttribute[];
+    designId?: string;
+    productFileMimeType?: string;
+    finalProductUid?: string;
+    retailPriceInclVat?: number;
+    price?: number;
+    itemReferenceName?: string;
+    isIgnored?: boolean;
   }
-
-  export interface FileObject {
-    // Aligned with v4 "Create order" -> "File" and "Get order" -> "File"
-    id?: string;
-    type: string; // e.g., "default", "back", "neck-inner"
-    url: string;
-    threadColors?: string[];
-    isVisible?: boolean;
-  }
-
   export interface OrderItemPreview {
-    // Aligned with v4 "Get order" -> "ItemPreview"
-    type: string; // "preview_default", "preview_thumbnail"
+    type: string;
     url: string;
   }
-
   export interface OrderItemOptions {
-    // Aligned with v4 "Get order" -> "ItemOption"
     id: string;
-    type: string; // e.g., "envelope"
+    type: string;
     productUid: string;
     quantity: number;
   }
-
-  export interface Metadata {
-    // Aligned with v4 "Create order" -> "MetadataObject"
-    key: string; // Max 100 chars
-    value: string; // Max 100 chars
+  export interface OrderItemAttribute {
+    name: string;
+    title: string;
+    value: string;
+    formmattedValue: string;
   }
-
+  export interface Metadata {
+    /** Max length: 100 */
+    key: string;
+    /** Max length: 100 */
+    value: string;
+  }
   export interface OrderShippingAddress {
-    // Aligned with v4 "ShippingAddressObject" (Create/Get Order)
-    id?: string; // Only in Get Order response, not for Create
     firstName: string;
     lastName: string;
     companyName?: string;
@@ -231,7 +233,7 @@ export namespace Gelato {
     city: string;
     postCode: string;
     state?: string;
-    country: string; // ISO 3166-1 alpha-2
+    country: string;
     email: string;
     phone?: string;
     isBusiness?: boolean;
@@ -239,23 +241,19 @@ export namespace Gelato {
     stateTaxId?: string;
     registrationStateCode?: string;
   }
-
+  /** Allows overriding one or multiple fields within shipping address  */
   export interface OrderReturnAddress {
-    // Aligned with v4 "ReturnAddressObject" (Create/Get Order)
-    id?: string; // Only in Get Order response, not for Create
     companyName?: string;
     addressLine1?: string;
     addressLine2?: string;
     city?: string;
     postCode?: string;
     state?: string;
-    country?: string; // ISO 3166-1 alpha-2
+    country?: string;
     email?: string;
     phone?: string;
   }
-
   export interface OrderBillingEntity {
-    // Aligned with v4 "Get order" -> "BillingEntityObject"
     id: string;
     companyName: string;
     companyNumber?: string;
@@ -270,32 +268,36 @@ export namespace Gelato {
     email: string;
     phone?: string;
   }
-
   export interface OrderShipment {
-    // Aligned with v4 "Get order" -> "ShipmentObject"
     id: string;
     shipmentMethodName: string;
     shipmentMethodUid: string;
-    packagesCount: number; // Renamed from packageCount
+    packageCount: number;
     minDeliveryDays: number;
     maxDeliveryDays: number;
-    minDeliveryDate: string; // Format YYYY-MM-DD
-    maxDeliveryDate: string; // Format YYYY-MM-DD
-    totalWeight: number; // In grams
-    fulfillmentCountry: string; // ISO 3166-1 alpha-2
+    /** Epoch time, the docs' wrong */
+    minDeliveryDate: number;
+    /** Epoch time, the docs' wrong */
+    maxDeliveryDate: number;
+    totalWeight: number;
+    fulfillmentCountry: string;
     packages: OrderShipmentPackage[];
+    // -- Additional props found in actual response:
+    price?: number;
+    status?: string;
+    address?: OrderShippingAddress[];
+    fulfillmentFacilityId?: string;
+    retailShippingPriceInclVat?: number;
+    productionFacilityId?: string;
+    shipmentOriginCountry?: string;
   }
-
   export interface OrderShipmentPackage {
-    // Aligned with v4 "Get order" -> "PackageObject"
     id: string;
     orderItemIds: string[];
     trackingCode: string;
     trackingUrl: string;
   }
-
   export interface OrderReceipt {
-    // Aligned with v4 "Get order" -> "ReceiptObject"
     id: string;
     orderId: string;
     transactionType: string;
@@ -323,24 +325,23 @@ export namespace Gelato {
     total: number;
     totalVat: number;
     totalInclVat: number;
-    // Optional fields from example, not in formal spec table but common:
+    // -- Additional props found in actual response:
+    type?: string;
     createdAt?: string;
     updatedAt?: string;
     receiptNumber?: string;
     billingEntity?: OrderBillingEntity;
     billingTag?: string;
   }
-
   export interface OrderReceiptItem {
-    // Aligned with v4 "Get order" -> "ReceiptItemObject"
     id: string;
     receiptId: string;
     referenceId: string;
-    type: string; // "product", "shipment", "packaging"
+    type: string;
     title: string;
     currency: string;
-    priceBase: string; // Spec: string
-    amount: string; // Spec: string
+    priceBase: string;
+    amount: string;
     priceInitial: number;
     discount: number;
     price: number;
@@ -351,114 +352,87 @@ export namespace Gelato {
   }
 
   export interface OrderSearchRequest {
-    // Aligned with v4 "Search orders" -> Request
     ids?: string[];
     orderReferenceId?: string;
     orderReferenceIds?: string[];
-    orderTypes?: OrderType[];
-    fulfillmentStatuses?: OrderFulfillmentStatus[];
-    financialStatuses?: OrderFinancialStatus[];
+    fulfillmentStatuses?: string[];
+    financialStatuses?: string[];
     channels?: string[];
     countries?: string[];
-    currencies?: string[];
     search?: string;
-    startDate?: string; // ISO 8601
-    endDate?: string; // ISO 8601
+    startDate?: string;
+    endDate?: string;
     offset?: number;
     limit?: number;
-    storeIds?: string[];
   }
-
-  export interface OrderSearchResultItem {
-    // Aligned with v4 "Search orders" -> Response -> OrderObject
+  export interface OrderSearch {
     id: string;
     orderReferenceId: string;
     fulfillmentStatus: OrderFulfillmentStatus;
     financialStatus: OrderFinancialStatus;
     channel: string;
     currency?: string;
-    firstName?: string;
-    lastName?: string;
-    country?: string;
+    firstName: string;
+    lastName: string;
+    country: string;
     createdAt: string;
     updatedAt: string;
-    orderedAt?: string;
+    orderedAt: string;
+    // -- Additional props found in actual response:
+    clientId: string;
     orderType: OrderType;
-    connectedOrderIds?: string[];
+    connectedOrderIds: string;
     storeId?: string;
-    totalInclVat?: string;
-    itemsCount?: number;
-  }
-
-  export interface OrderSearchListResponse {
-    // Aligned with v4 "Search orders" -> Response
-    orders: OrderSearchResultItem[];
-    // Pagination not specified in V4 Search Orders response doc.
+    totalIncVat?: string;
+    itemsCount: number;
   }
 
   export interface OrderQuoteRequest {
-    // Aligned with v4 Quote structure (from "Search orders" example)
-    // orderReferenceId: string; // Not in the POST body of /v4/orders:quote, but was in old SDK. Removed for strict V4.
-    // customerReferenceId: string; // Not in V4 structure example for quote request.
-    currency: string; // Required
-    recipient: OrderShippingAddress; // Required. Maps to ShippingAddressObject
-    products: OrderItemRequest[]; // Required. Maps to ItemObject[]
-    // allowMultipleQuotes?: boolean; // Not in V4 structure example.
-  }
-
-  export interface OrderQuoteResponse {
-    // Aligned with v4 Quote structure (from "Search orders" example)
-    orderReferenceId: string; // The orderReferenceId sent in the original request (though not in body)
-    quotes: OrderQuote[];
+    orderReferenceId: string;
+    customerReferenceId: string;
+    currency: string;
+    recipient: OrderShippingAddress;
+    products: OrderItemRequest[];
+    allowMultipleQuotes?: boolean;
   }
 
   export interface OrderQuote {
-    // Represents one quote option
-    id: string; // Quote ID
+    id: string;
     itemReferenceIds: string[];
     fulfillmentCountry: string;
     shipmentMethods: OrderQuoteShipment[];
     products: OrderQuoteProduct[];
   }
-
   export interface OrderQuoteShipment {
-    // Aligned with v4 Quote structure -> ShipmentMethods
     name: string;
     shipmentMethodUid: string;
     price: number;
     currency: string;
     minDeliveryDays: number;
     maxDeliveryDays: number;
-    minDeliveryDate: string; // Format YYYY-MM-DD
-    maxDeliveryDate: string; // Format YYYY-MM-DD
+    /** Epoch time, the docs' wrong */
+    minDeliveryDate: number;
+    /** Epoch time, the docs' wrong */
+    maxDeliveryDate: number;
     type: ShipmentType;
     isPrivate: boolean;
     isBusiness: boolean;
     totalWeight: number;
     numberOfParcels: number;
-    incoTerms?: string; // Added as per V4 example
   }
 
   export interface OrderQuoteProduct {
-    // Aligned with v4 Quote structure -> Products
     itemReferenceId: string;
     productUid: string;
     quantity: number;
     currency: string;
     price: number;
-    // pageCount removed, not in V4 quote product example
+    pageCount: number;
   }
 
-  export interface OrderPatchRequest {
-    // Aligned with v4 "Patch draft order"
-    orderType: 'order'; // Must be 'order'
-    items?: OrderPatchItem[];
-  }
-
-  export interface OrderPatchItem {
-    // Item for OrderPatchRequest
-    id: string; // Existing order item ID
-    files?: FileObject[];
-  }
-  // Response for Patch Order is the full `Order` object.
+export interface PatchOperation {
+  op: 'replace' | 'add' | 'remove' | 'copy' | 'move' | 'test';
+  path: string;
+  value?: any;
+  from?: string;
 }

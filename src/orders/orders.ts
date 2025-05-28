@@ -1,13 +1,28 @@
-import { GelatoApiBase } from '../base'; // GelatoOrdersV4Api will extend this
-import { Gelato as I } from '../types';
-import { GelatoOrdersV4Api } from './orders-v4';
+import { GelatoOrdersV3Api } from './orders-v3';
+import { GelatoApiBase } from '../base';
+import { Config } from '../types';
 
-// GelatoOrdersApi now directly IS the V4 implementation by extending GelatoOrdersV4Api.
-// GelatoOrdersV4Api should extend GelatoApiBase, which is standard.
-export class GelatoOrdersApi extends GelatoOrdersV4Api {
-  constructor(config: I.Config) {
-    super(config);
-    // All methods and properties from GelatoOrdersV4Api are inherited.
-    // No need to instantiate v4 separately if this class becomes the v4 wrapper.
+/**
+ * Main class for interacting with Gelato's Orders API.
+ * It provides access to different versions of the Orders API.
+ * Currently, it primarily exposes the V3 Orders API.
+ */
+export class GelatoOrdersApi extends GelatoApiBase {
+  /**
+   * An instance of GelatoOrdersV3Api for interacting with V3 of the Orders API.
+   * @type {GelatoOrdersV3Api}
+   */
+  readonly v3: GelatoOrdersV3Api;
+
+  /**
+   * Constructs a new GelatoOrdersApi instance.
+   * @param {Config} config - The configuration object, including the API key.
+   *                         This config is passed down to the underlying API version clients.
+   */
+  constructor(config: Config) {
+    super(config); // GelatoApiBase constructor will set up the axios instance.
+    // Pass the same config (which includes the API key and any other base settings)
+    // to the V3 API client. The V3 client will then set its specific base URL.
+    this.v3 = new GelatoOrdersV3Api(config); 
   }
 }
