@@ -1,15 +1,18 @@
 import { GelatoApiBase } from './base';
-import { Gelato as I } from './types';
+import { Config } from './types';
 import { GelatoOrdersApi } from './orders';
 import { GelatoProductApi } from './products';
 import { GelatoShipmentApi } from './shipment';
 
 export class GelatoApi extends GelatoApiBase {
-  constructor(config: I.Config) {
-    super(config);
-  }
+  readonly products: GelatoProductApi;
+  readonly shipment: GelatoShipmentApi;
+  readonly orders: GelatoOrdersApi;
 
-  readonly products = new GelatoProductApi(this.config);
-  readonly shipment = new GelatoShipmentApi(this.config);
-  readonly orders = new GelatoOrdersApi(this.config);
+  constructor(config: Config) {
+    super(config, '');
+    this.products = new GelatoProductApi(config);
+    this.shipment = new GelatoShipmentApi(config);
+    this.orders = new GelatoOrdersApi(config);
+  }
 }

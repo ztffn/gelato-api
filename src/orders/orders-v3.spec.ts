@@ -60,7 +60,15 @@ describe('GelatoOrdersV3Api', () => {
   describe('create', () => {
     const orderCreateRequest: OrderCreateRequest = {
       orderReferenceId: 'test-order-ref', customerReferenceId: 'test-customer-ref', currency: 'USD',
-      items: [{ itemReferenceId: 'item-ref', productUid: 'product-uid', quantity: 1 }],
+      items: [{ 
+        itemReferenceId: 'item-ref', 
+        productUid: 'product-uid', 
+        quantity: 1,
+        files: [{
+          type: 'application/pdf',
+          url: 'https://example.com/file.pdf'
+        }]
+      }],
       shippingAddress: { firstName: 'John', lastName: 'Doe', addressLine1: '123 Main St', city: 'Anytown', postCode: '12345', country: 'US', email: 'john.doe@example.com' },
     };
     const mockOrderItems: OrderItem[] = orderCreateRequest.items.map((item, index) => ({
@@ -200,7 +208,15 @@ describe('GelatoOrdersV3Api', () => {
     const quoteRequest: OrderQuoteRequest = {
       orderReferenceId: 'quote-ref-1', customerReferenceId: 'cust-ref-1', currency: 'USD',
       recipient: { firstName: 'Test', lastName: 'User', addressLine1: '1 Test Ln', city: 'Testville', postCode: '12345', country: 'US', email: 'test@example.com' },
-      products: [{ itemReferenceId: 'prod-item-1', productUid: 'canvas_12x12', quantity: 1 }],
+      products: [{ 
+        itemReferenceId: 'prod-item-1', 
+        productUid: 'canvas_12x12', 
+        quantity: 1,
+        files: [{
+          type: 'application/pdf',
+          url: 'https://example.com/file.pdf'
+        }]
+      }],
     };
     const mockAxiosResponse: AxiosResponse<{ orderReferenceId: string; quotes: OrderQuote[] }> = {
       data: { orderReferenceId: 'quote-ref-1', quotes: [] },

@@ -1,11 +1,11 @@
 # Gelato API Integration Guide
 
 ## Overview
-This document provides a quick reference for integrating with the Gelato API. The API allows you to create and manage print products, handle orders, and manage your store's catalog.
+The Gelato API is organized around REST. Our API has predictable, resource-oriented URLs, and uses HTTP response codes to indicate API errors. We use built-in HTTP features, like HTTP authentication and HTTP verbs, which are understood by off-the-shelf HTTP clients. JSON is returned by all API responses, including errors.
 
 ## Base URL
 ```
-https://ecommerce.gelatoapis.com/v1
+https://order.gelatoapis.com
 ```
 
 ## Authentication
@@ -13,6 +13,8 @@ All API requests require an API key to be passed in the header:
 ```
 X-API-KEY: {{apiKey}}
 ```
+
+All API requests must be made over HTTPS. Calls made over plain HTTP will fail. API requests without a valid API key will also fail.
 
 ## Key Endpoints
 

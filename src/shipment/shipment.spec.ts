@@ -42,18 +42,18 @@ describe('GelatoShipmentApi', () => {
     ];
     // The API is documented to return ShipmentMethod[] directly, not a ListResponse object.
     // See: https://docs.gelato.com/reference/getshippingmethods
-    const mockAxiosResponse: AxiosResponse<ShipmentMethod[]> = {
-      data: mockShipmentMethods,
+    const mockAxiosResponse: AxiosResponse<{ shipmentMethods: ShipmentMethod[] }> = {
+      data: { shipmentMethods: mockShipmentMethods },
       status: 200, statusText: 'OK', headers: {}, config: {} as any,
     };
 
     it('should call axios.get with correct params and handle response for getMethods', async () => {
-      const params = { country: 'US', currency: 'USD' };
+      const params = { country: 'US' };
       mockAxiosInstance.get.mockResolvedValue(mockAxiosResponse);
 
-      const result = await shipmentApi.getMethods(params);
+      const result = await shipmentApi.getMethods(params.country);
 
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/v1/shipping/methods', { params });
+      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/shipment-methods', { params });
       expect(handleResponseSpy).toHaveBeenCalled();
       expect(result).toEqual(mockShipmentMethods);
     });
@@ -63,19 +63,19 @@ describe('GelatoShipmentApi', () => {
       
       const result = await shipmentApi.getMethods();
 
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/v1/shipping/methods', { params: undefined });
+      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/shipment-methods', { params: { country: undefined } });
       expect(handleResponseSpy).toHaveBeenCalled();
       expect(result).toEqual(mockShipmentMethods);
     });
 
     it('should propagate error if axios.get fails for getMethods', async () => {
-      const params = { country: 'US', currency: 'USD' };
+      const params = { country: 'US' };
       const mockError = new Error('API Error');
       mockAxiosInstance.get.mockRejectedValue(mockError);
       handleResponseSpy.mockImplementationOnce(promise => promise.catch((e: any) => { throw e; }));
 
-      await expect(shipmentApi.getMethods(params)).rejects.toThrow('API Error');
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/v1/shipping/methods', { params });
+      await expect(shipmentApi.getMethods(params.country)).rejects.toThrow('API Error');
+      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/shipment-methods', { params });
       expect(handleResponseSpy).toHaveBeenCalled();
     });
   });

@@ -12,19 +12,23 @@ export interface Config {
     title: string;
     productAttributes: ProductAttribute[];
   }
+
   export interface ProductAttribute {
     productAttributeUid: string;
     title: string;
     values: ProductAttributeValue[];
   }
+
   export interface ProductAttributeValue {
     productAttributeValueUid: string;
     title: string;
   }
+
   export interface MeasureUnit {
     value: number;
     measureUnit: string;
   }
+
 export interface ProductBase {
     productUid: string;
     attributes: { [name: string]: string };
@@ -48,18 +52,18 @@ export interface ProductBase {
 
   export interface ProductCoverDimension {
     productUid: string;
-    pageCount: number;
+    pagesCount: number;
     measureUnit: string;
-    wraparoundInsideSize?: ProductDimensionAttribute;
-    wraparoundEdgeSize?: ProductDimensionAttribute;
-    contentBackSize?: ProductDimensionAttribute;
-    jointBackSize?: ProductDimensionAttribute;
-    spineSize?: ProductDimensionAttribute;
-    jointFrontSize?: ProductDimensionAttribute;
-    contentFrontSize?: ProductDimensionAttribute;
-    bleedSize?: ProductDimensionAttribute;
+    wraparoundInsideSize?: DimensionAttributes;
+    wraparoundEdgeSize?: DimensionAttributes;
+    contentBackSize?: DimensionAttributes;
+    jointBackSize?: DimensionAttributes;
+    spineSize?: DimensionAttributes;
+    jointFrontSize?: DimensionAttributes;
+    contentFrontSize?: DimensionAttributes;
+    bleedSize?: DimensionAttributes;
   }
-  export interface ProductDimensionAttribute {
+  export interface DimensionAttributes {
     width: number;
     height: number;
     left: number;
@@ -69,14 +73,18 @@ export interface ProductBase {
   export interface ProductPrice {
     productUid: string;
     country: string;
-    currency: string;
     quantity: number;
     price: number;
-    pageCount?: number;
+    currency: string;
+    pageCount: number | null;
   }
   export interface ProductAvailability {
     productUid: string;
-    availability: Availability[];
+    availability: {
+      stockRegionUid: string;
+      status: 'in-stock' | 'out-of-stock-replenishable' | 'out-of-stock' | 'non-stockable' | 'not-supported';
+      replenishmentDate: string | null;
+    }[];
   }
   export interface Availability {
     stockRegionUid: string;
@@ -165,20 +173,20 @@ export interface ProductBase {
     paymentMethodType?: string;
     paymentMethodId?: string;
     connectedOrderIds?: string[];
-    // @ts-expect-error API response structure may vary
-    discounts?: unknown[];
   }
   export interface OrderItemRequest {
     itemReferenceId: string;
     productUid: string;
     quantity: number;
     pageCount?: number;
-    fileUrl?: string;
+    files: {
+      type: string;
+      url: string;
+    }[];
   }
   export interface OrderItem extends OrderItemRequest {
     id: string;
     fulfillmentStatus: OrderFulfillmentStatus;
-    fileUrl: string;
     processedFileUrl: string;
     previews: OrderItemPreview[];
     options: OrderItemOptions[];
@@ -188,10 +196,6 @@ export interface ProductBase {
     productTypeUid?: string;
     productNameUid?: string;
     productName?: string;
-    // @ts-expect-error API response structure may vary
-    printJobs?: unknown[];
-    // @ts-expect-error API response structure may vary
-    eventLog?: unknown[];
     metadata?: Metadata[];
     attributes?: OrderItemAttribute[];
     designId?: string;
@@ -435,4 +439,63 @@ export interface PatchOperation {
   path: string;
   value?: any;
   from?: string;
+}
+
+export type Gelato = any; // Placeholder for the Gelato type
+
+export interface OrderPatchRequest {
+  orderType?: OrderType;
+  // Add other fields as needed
+}
+
+export interface OrderSearchListResponse {
+  data: OrderSearch[];
+  pagination: { total: number; offset: number };
+}
+
+export interface OrderQuoteResponse {
+  id: string;
+  itemReferenceIds: string[];
+  fulfillmentCountry: string;
+  shipmentMethods: OrderQuoteShipment[];
+  products: OrderQuoteProduct[];
+}
+
+export interface ProductAttributes {
+  [key: string]: string;
+}
+
+export interface ProductDimensions {
+  [key: string]: MeasureUnit;
+}
+
+export interface Product {
+  productUid: string;
+  attributes: ProductAttributes;
+  weight: MeasureUnit;
+  dimensions: ProductDimensions;
+  supportedCountries: string[];
+  notSupportedCountries: string[];
+  isStockable: boolean;
+  isPrintable: boolean;
+  validPageCounts?: number[];
+}
+
+export interface ProductSearchRequest {
+  attributeFilters?: {
+    [key: string]: string[];
+  };
+  limit?: number;
+  offset?: number;
+}
+
+export interface ProductSearchResponse {
+  products: Product[];
+  hits: {
+    attributeHits: {
+      [key: string]: {
+        [key: string]: number;
+      };
+    };
+  };
 }

@@ -10,6 +10,8 @@ import {
   OrderQuote,
   OrderShippingAddress,
   PatchOperation,
+  OrderPatchRequest,
+  OrderQuoteResponse,
 } from '../types';
 
 // Define a generic ListResponse if not already suitable in types.ts
@@ -117,11 +119,11 @@ export class GelatoOrdersV3Api extends GelatoApiBase {
   /**
    * Retrieves a quote for an order.
    * @param {OrderQuoteRequest} params - The quote request parameters.
-   * @returns {Promise<{ orderReferenceId: string; quotes: OrderQuote[] }>} A promise that resolves with the quote details.
+   * @returns {Promise<OrderQuoteResponse>} A promise that resolves with the quote details.
    * @see https://docs.gelato.com/reference/getorderquotes
    */
-  quote(params: OrderQuoteRequest): Promise<{ orderReferenceId: string; quotes: OrderQuote[] }> {
-    const promise: Promise<AxiosResponse<{ orderReferenceId: string; quotes: OrderQuote[] }>> = this.axios.post<{ orderReferenceId: string; quotes: OrderQuote[] }>('/v3/orders/quote', params);
+  quote(params: OrderQuoteRequest): Promise<OrderQuoteResponse> {
+    const promise: Promise<AxiosResponse<OrderQuoteResponse>> = this.axios.post<OrderQuoteResponse>('/v3/orders/quote', params);
     return this.handleResponse(promise);
   }
 
@@ -147,6 +149,29 @@ export class GelatoOrdersV3Api extends GelatoApiBase {
    */
   updateShippingAddress(orderId: string, params: OrderShippingAddress): Promise<OrderShippingAddress> {
     const promise: Promise<AxiosResponse<OrderShippingAddress>> = this.axios.put<OrderShippingAddress>(`/v3/orders/${orderId}/shipping-address`, params);
+    return this.handleResponse(promise);
+  }
+
+  /**
+   * Patches an existing order.
+   * @param {string} orderId - The ID of the order to patch.
+   * @param {OrderPatchRequest} patch - The patch request payload.
+   * @returns {Promise<Order>} A promise that resolves with the patched order details.
+   * @see https://docs.gelato.com/reference/updateorderbyid
+   */
+  patch(orderId: string, patch: OrderPatchRequest): Promise<Order> {
+    const promise: Promise<AxiosResponse<Order>> = this.axios.patch<Order>(`/v3/orders/${orderId}`, patch);
+    return this.handleResponse(promise);
+  }
+
+  /**
+   * Deletes an existing order.
+   * @param {string} orderId - The ID of the order to delete.
+   * @returns {Promise<void>} A promise that resolves when the order is successfully deleted.
+   * @see https://docs.gelato.com/reference/deleteorderbyid
+   */
+  delete(orderId: string): Promise<void> {
+    const promise: Promise<AxiosResponse<void>> = this.axios.delete<void>(`/v3/orders/${orderId}`);
     return this.handleResponse(promise);
   }
 }

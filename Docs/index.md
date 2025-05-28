@@ -5,7 +5,7 @@ This document provides a quick reference for integrating with the Gelato API. Th
 
 ## Base URL
 ```
-https://ecommerce.gelatoapis.com/v1
+https://order.gelatoapis.com
 ```
 
 ## Authentication
