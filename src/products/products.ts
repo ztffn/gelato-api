@@ -8,8 +8,9 @@ export class GelatoProductApi extends GelatoApiBase {
     super(config);
   }
 
-  getCatalogs(params?: { offset?: number; limit?: number }): Promise<I.ListResponse<I.ProductCatalog>> {
-    return this.handleResponse(this.axios.get('/catalogs', { params }));
+  // Changed return type to Promise<I.ProductCatalog[]> and removed unused params
+  getCatalogs(): Promise<I.ProductCatalog[]> {
+    return this.handleResponse(this.axios.get('/catalogs'));
   }
 
   getCatalog(catalogUid: string): Promise<I.ProductCatalog> {
@@ -34,10 +35,12 @@ export class GelatoProductApi extends GelatoApiBase {
     return this.handleResponse(this.axios.get(`/products/${productUid}`));
   }
 
+  // Changed return type to Promise<I.ProductCoverDimension>
+  // The type I.ProductCoverDimension in types.ts was already updated to use pagesCount
   getCoverDimensions(
     productUid: string,
-    params: { pageCount: number },
-  ): Promise<{ products: I.ProductCoverDimension[] }> {
+    params: { pageCount: number }, // Query parameter is 'pageCount'
+  ): Promise<I.ProductCoverDimension> {
     return this.handleResponse(this.axios.get(`/products/${productUid}/cover-dimensions`, { params }));
   }
 
