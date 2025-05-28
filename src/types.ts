@@ -1,5 +1,4 @@
-export namespace Gelato {
-  export interface Config {
+export interface Config {
     apiKey: string;
   }
 
@@ -26,7 +25,7 @@ export namespace Gelato {
     value: number;
     measureUnit: string;
   }
-  interface ProductBase {
+export interface ProductBase {
     productUid: string;
     attributes: { [name: string]: string };
     weight: MeasureUnit;
@@ -166,8 +165,8 @@ export namespace Gelato {
     paymentMethodType?: string;
     paymentMethodId?: string;
     connectedOrderIds?: string[];
-    // @ts-ignore
-    discounts?: any[];
+    // @ts-expect-error API response structure may vary
+    discounts?: unknown[];
   }
   export interface OrderItemRequest {
     itemReferenceId: string;
@@ -189,10 +188,10 @@ export namespace Gelato {
     productTypeUid?: string;
     productNameUid?: string;
     productName?: string;
-    // @ts-ignore
-    printJobs?: any[];
-    // @ts-ignore
-    eventLog?: any[];
+    // @ts-expect-error API response structure may vary
+    printJobs?: unknown[];
+    // @ts-expect-error API response structure may vary
+    eventLog?: unknown[];
     metadata?: Metadata[];
     attributes?: OrderItemAttribute[];
     designId?: string;
@@ -430,4 +429,10 @@ export namespace Gelato {
     price: number;
     pageCount: number;
   }
+
+export interface PatchOperation {
+  op: 'replace' | 'add' | 'remove' | 'copy' | 'move' | 'test';
+  path: string;
+  value?: any;
+  from?: string;
 }
