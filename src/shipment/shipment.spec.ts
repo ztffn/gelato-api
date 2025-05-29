@@ -1,14 +1,7 @@
 import { GelatoShipmentApi } from './shipment';
 import { GelatoApiBase } from '../base';
-import { Config, ShipmentMethod } from '../types'; // Assuming ListResponse is also in types or defined locally
-import { AxiosInstance, AxiosResponse } from 'axios';
-
-// Define ListResponse locally or ensure it's imported if it's generic enough from types.ts
-interface ListResponse<T> {
-  data: T[];
-  // Assuming pagination structure if relevant, or simplify if not used by shipment methods endpoint
-  pagination?: { total: number; offset: number }; 
-}
+import { Config, ShipmentMethod } from '../types';
+import { AxiosInstance, AxiosResponse, AxiosRequestConfig } from 'axios';
 
 describe('GelatoShipmentApi', () => {
   let shipmentApi: GelatoShipmentApi;
@@ -25,10 +18,10 @@ describe('GelatoShipmentApi', () => {
       // Add other methods if used by ShipmentApi, typically just get for this one
     } as unknown as jest.Mocked<AxiosInstance>;
 
-    (shipmentApi as any).axios = mockAxiosInstance;
+    (shipmentApi as unknown as { axios: AxiosInstance }).axios = mockAxiosInstance;
 
-    handleResponseSpy = jest.spyOn(GelatoApiBase.prototype as any, 'handleResponse');
-    handleResponseSpy.mockImplementation(promise => promise.then((res: AxiosResponse<any>) => res.data));
+    handleResponseSpy = jest.spyOn(GelatoApiBase.prototype as unknown as { handleResponse: (promise: Promise<AxiosResponse>) => Promise<unknown> }, 'handleResponse');
+    handleResponseSpy.mockImplementation(promise => promise.then((res: AxiosResponse<unknown>) => res.data));
   });
 
   afterEach(() => {
@@ -44,7 +37,7 @@ describe('GelatoShipmentApi', () => {
     // See: https://docs.gelato.com/reference/getshippingmethods
     const mockAxiosResponse: AxiosResponse<{ shipmentMethods: ShipmentMethod[] }> = {
       data: { shipmentMethods: mockShipmentMethods },
-      status: 200, statusText: 'OK', headers: {}, config: {} as any,
+      status: 200, statusText: 'OK', headers: {}, config: {} as AxiosRequestConfig,
     };
 
     it('should call axios.get with correct params and handle response for getMethods', async () => {
@@ -72,7 +65,7 @@ describe('GelatoShipmentApi', () => {
       const params = { country: 'US' };
       const mockError = new Error('API Error');
       mockAxiosInstance.get.mockRejectedValue(mockError);
-      handleResponseSpy.mockImplementationOnce(promise => promise.catch((e: any) => { throw e; }));
+      handleResponseSpy.mockImplementationOnce(promise => promise.catch((e: unknown) => { throw e; }));
 
       await expect(shipmentApi.getMethods(params.country)).rejects.toThrow('API Error');
       expect(mockAxiosInstance.get).toHaveBeenCalledWith('/shipment-methods', { params });

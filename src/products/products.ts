@@ -11,11 +11,6 @@ import {
   ProductSearchResponse,
 } from '../types';
 
-interface ListResponse<T> {
-  data: T[];
-  pagination: { total: number; offset: number };
-}
-
 /**
  * Gelato Product API client.
  * Provides methods for interacting with the Gelato Product API.

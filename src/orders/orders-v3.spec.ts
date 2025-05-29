@@ -12,7 +12,7 @@ import {
   PatchOperation, 
   OrderItem,
 } from '../types';
-import { AxiosInstance, AxiosResponse } from 'axios'; // Import Axios types
+import { AxiosInstance, AxiosResponse, AxiosRequestConfig } from 'axios'; // Import Axios types
 
 // Define a local ListResponse if not using one from types.ts consistently
 interface ListResponse<T> {
@@ -42,15 +42,15 @@ describe('GelatoOrdersV3Api', () => {
     } as unknown as jest.Mocked<AxiosInstance>; // Use unknown for type assertion
 
     // Replace the actual axios instance in ordersV3Api with our mock
-    (ordersV3Api as any).axios = mockAxiosInstance;
+    (ordersV3Api as unknown as { axios: AxiosInstance }).axios = mockAxiosInstance;
 
     // Spy on the actual handleResponse method on the GelatoApiBase prototype
     // This allows us to verify it's called and to control its behavior if needed,
     // without fully mocking the base class if we want to test some of its logic.
     // For these tests, we mostly want to ensure it's called with the promise from axios.
-    handleResponseSpy = jest.spyOn(GelatoApiBase.prototype as any, 'handleResponse');
+    handleResponseSpy = jest.spyOn(GelatoApiBase.prototype as unknown as { handleResponse: (promise: Promise<AxiosResponse>) => Promise<unknown> }, 'handleResponse');
     // Default spy implementation to mimic real behavior for success path
-    handleResponseSpy.mockImplementation(promise => promise.then((res: AxiosResponse<any>) => res.data));
+    handleResponseSpy.mockImplementation(promise => promise.then((res: AxiosResponse<unknown>) => res.data));
   });
 
   afterEach(() => {
@@ -76,7 +76,7 @@ describe('GelatoOrdersV3Api', () => {
     }));
     const mockAxiosResponse: AxiosResponse<Order> = {
       data: { ...orderCreateRequest, id: 'order-id-123', orderType: 'order', fulfillmentStatus: 'created', financialStatus: 'created', channel: 'api', createdAt: '', updatedAt: '', orderedAt: '', items: mockOrderItems, receipts: [] },
-      status: 201, statusText: 'Created', headers: {}, config: {} as any,
+      status: 201, statusText: 'Created', headers: {}, config: {} as AxiosRequestConfig,
     };
 
     it('should call this.axios.post and this.handleResponse, then return data', async () => {
@@ -93,7 +93,7 @@ describe('GelatoOrdersV3Api', () => {
       const mockError = new Error('Network error');
       mockAxiosInstance.post.mockRejectedValue(mockError);
       // Ensure handleResponse re-throws the error for this test case
-      handleResponseSpy.mockImplementationOnce(promise => promise.catch((e: any) => { throw e; }));
+      handleResponseSpy.mockImplementationOnce(promise => promise.catch((e: unknown) => { throw e; }));
 
 
       await expect(ordersV3Api.create(orderCreateRequest)).rejects.toThrow('Network error');
@@ -106,7 +106,7 @@ describe('GelatoOrdersV3Api', () => {
     const orderId = 'order-id-123';
     const mockAxiosResponse: AxiosResponse<Order> = {
       data: { id: orderId, orderReferenceId: 'test-order-ref' } as Order, // Cast for partial mock
-      status: 200, statusText: 'OK', headers: {}, config: {} as any,
+      status: 200, statusText: 'OK', headers: {}, config: {} as AxiosRequestConfig,
     };
 
     it('should call this.axios.get and this.handleResponse, then return data', async () => {
@@ -120,7 +120,7 @@ describe('GelatoOrdersV3Api', () => {
     it('should propagate error if axios.get fails', async () => {
       const mockError = new Error('API Error');
       mockAxiosInstance.get.mockRejectedValue(mockError);
-      handleResponseSpy.mockImplementationOnce(promise => promise.catch((e: any) => { throw e; }));
+      handleResponseSpy.mockImplementationOnce(promise => promise.catch((e: unknown) => { throw e; }));
       await expect(ordersV3Api.get(orderId)).rejects.toThrow('API Error');
       expect(mockAxiosInstance.get).toHaveBeenCalledWith(`/v3/orders/${orderId}`);
       expect(handleResponseSpy).toHaveBeenCalled();
@@ -131,7 +131,7 @@ describe('GelatoOrdersV3Api', () => {
     const searchParams: OrderSearchRequest = { limit: 10, offset: 0 };
     const mockAxiosResponse: AxiosResponse<ListResponse<OrderSearch>> = {
       data: { data: [], pagination: { total: 0, offset: 0 } },
-      status: 200, statusText: 'OK', headers: {}, config: {} as any,
+      status: 200, statusText: 'OK', headers: {}, config: {} as AxiosRequestConfig,
     };
 
     it('should call this.axios.get with params and this.handleResponse, then return data', async () => {
@@ -148,7 +148,7 @@ describe('GelatoOrdersV3Api', () => {
     const operations: PatchOperation[] = [{ op: 'replace', path: '/customerReferenceId', value: 'new-customer-ref' }];
     const mockAxiosResponse: AxiosResponse<Order> = {
       data: { id: orderId, customerReferenceId: 'new-customer-ref' } as Order,
-      status: 200, statusText: 'OK', headers: {}, config: {} as any,
+      status: 200, statusText: 'OK', headers: {}, config: {} as AxiosRequestConfig,
     };
 
     it('should call axios.patch and handleResponse', async () => {
@@ -165,7 +165,7 @@ describe('GelatoOrdersV3Api', () => {
     const orderUpdateRequest: Partial<Order> = { orderReferenceId: 'updated-order-ref' };
      const mockAxiosResponse: AxiosResponse<Order> = {
       data: { ...orderUpdateRequest, id: orderId } as Order,
-      status: 200, statusText: 'OK', headers: {}, config: {} as any,
+      status: 200, statusText: 'OK', headers: {}, config: {} as AxiosRequestConfig,
     };
 
     it('should call axios.put and handleResponse', async () => {
@@ -180,7 +180,7 @@ describe('GelatoOrdersV3Api', () => {
   describe('deleteDraft', () => {
     const orderId = 'draft-to-delete-id';
     const mockAxiosResponse: AxiosResponse<void> = { // void for delete typically
-      data: undefined as any, status: 204, statusText: 'No Content', headers: {}, config: {} as any,
+      data: undefined, status: 204, statusText: 'No Content', headers: {}, config: {} as AxiosRequestConfig,
     };
 
     it('should call axios.delete and handleResponse', async () => {
@@ -194,7 +194,7 @@ describe('GelatoOrdersV3Api', () => {
   describe('cancel', () => {
     const orderId = 'order-to-cancel-id';
      const mockAxiosResponse: AxiosResponse<void> = {
-      data: undefined as any, status: 200, statusText: 'OK', headers: {}, config: {} as any, // Or 204
+      data: undefined, status: 200, statusText: 'OK', headers: {}, config: {} as AxiosRequestConfig, // Or 204
     };
     it('should call axios.post and handleResponse for cancel', async () => {
       mockAxiosInstance.post.mockResolvedValue(mockAxiosResponse);
@@ -220,7 +220,7 @@ describe('GelatoOrdersV3Api', () => {
     };
     const mockAxiosResponse: AxiosResponse<{ orderReferenceId: string; quotes: OrderQuote[] }> = {
       data: { orderReferenceId: 'quote-ref-1', quotes: [] },
-      status: 200, statusText: 'OK', headers: {}, config: {} as any,
+      status: 200, statusText: 'OK', headers: {}, config: {} as AxiosRequestConfig,
     };
     it('should call axios.post and handleResponse for quote', async () => {
       mockAxiosInstance.post.mockResolvedValue(mockAxiosResponse);
@@ -235,7 +235,7 @@ describe('GelatoOrdersV3Api', () => {
     const orderId = 'order-id-for-shipping';
     const mockAxiosResponse: AxiosResponse<OrderShippingAddress> = {
       data: { firstName: 'Test', lastName: 'User', addressLine1: '1 Test Ln', city: 'Testville', postCode: '12345', country: 'US', email: 'test@example.com' },
-      status: 200, statusText: 'OK', headers: {}, config: {} as any,
+      status: 200, statusText: 'OK', headers: {}, config: {} as AxiosRequestConfig,
     };
     it('should call axios.get and handleResponse for getShippingAddress', async () => {
       mockAxiosInstance.get.mockResolvedValue(mockAxiosResponse);
@@ -251,7 +251,7 @@ describe('GelatoOrdersV3Api', () => {
     const addressUpdatePayload: OrderShippingAddress = { firstName: 'Updated', lastName: 'User', addressLine1: '2 Updated Test Ln', city: 'Testville', postCode: '12345', country: 'US', email: 'test@example.com' };
     const mockAxiosResponse: AxiosResponse<OrderShippingAddress> = {
       data: { ...addressUpdatePayload },
-      status: 200, statusText: 'OK', headers: {}, config: {} as any,
+      status: 200, statusText: 'OK', headers: {}, config: {} as AxiosRequestConfig,
     };
     it('should call axios.put and handleResponse for updateShippingAddress', async () => {
       mockAxiosInstance.put.mockResolvedValue(mockAxiosResponse);

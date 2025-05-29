@@ -19,17 +19,21 @@ End-to-end tests can be run with `npm run test:e2e`. Make sure your `.env` file 
 - Updated response types to match API documentation
 - Fixed import statements and class inheritance
 - All unit tests are now passing
+- Fixed all ESLint errors and warnings
+- Removed all unnecessary `any` types
+- Cleaned up unused imports and variables
+- Aligned all API endpoints with V4 documentation
 
 ### 🚧 In Progress
-- ESLint configuration update to v8.57+ or v9+
 - End-to-end test implementation
+- CI/CD pipeline setup with lint-staged and pre-commit hooks
 
 ## Roadmap of Planned Improvements
 
 ### High Priority
-- **Update ESLint Configuration:** Update ESLint to v8.57+ or v9+, finalize configuration, and apply fixes.
 - **Implement End-to-End Tests:** Create comprehensive e2e tests for all API endpoints.
 - **Enhance Error Handling:** Improve error handling in `GelatoApiBase` (`src/base.ts`) with specific error types and logging.
+- **CI/CD Setup:** Configure lint-staged, pre-commit hooks, and GitHub Actions workflow.
 
 ### Medium Priority
 - **Review V4 API Coverage:** Compare the SDK with full V4 documentation for Orders & Products.

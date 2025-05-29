@@ -6,13 +6,6 @@ import {
   Order,
   OrderSearchRequest,
   OrderSearch,
-  OrderQuoteRequest,
-  OrderQuote,
-  OrderShippingAddress,
-  PatchOperation,
-  OrderPatchRequest,
-  OrderQuoteResponse,
-  ListResponse,
 } from '../types';
 
 /**

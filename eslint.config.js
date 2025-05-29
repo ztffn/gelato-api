@@ -4,6 +4,13 @@ import tsPlugin from "@typescript-eslint/eslint-plugin";
 import jestPlugin from "eslint-plugin-jest";
 import path from "path";
 import { fileURLToPath } from "url";
+import airbnbTypescript from "eslint-config-airbnb-typescript";
+import prettier from "eslint-config-prettier";
+import importPlugin from "eslint-plugin-import";
+import jsxA11yPlugin from "eslint-plugin-jsx-a11y";
+import reactPlugin from "eslint-plugin-react";
+import reactHooksPlugin from "eslint-plugin-react-hooks";
+import prettierPlugin from "eslint-plugin-prettier";
 
 // Replicate __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -28,10 +35,24 @@ export default [
     },
     plugins: {
       "@typescript-eslint": tsPlugin,
+      "import": importPlugin,
+      "jsx-a11y": jsxA11yPlugin,
+      "react": reactPlugin,
+      "react-hooks": reactHooksPlugin,
+      "prettier": prettierPlugin,
     },
-    // Start with recommended rules from @typescript-eslint/eslint-plugin
-    // These are rule settings, not full config objects.
-    rules: tsPlugin.configs.recommended.rules,
+    // Manually merge Airbnb TypeScript and Prettier rules/settings
+    rules: {
+      ...airbnbTypescript.rules,
+      ...prettier.rules,
+      ...tsPlugin.configs.recommended.rules,
+      // Re-enable rules to ensure errors are properly addressed
+      // "@typescript-eslint/no-explicit-any": "off",
+      // "@typescript-eslint/no-unused-vars": "off",
+    },
+    settings: {
+      ...airbnbTypescript.settings,
+    },
   },
   // Layer additional stricter rule sets if desired.
   // For example, to add 'strict' rules (these are also just rule settings):

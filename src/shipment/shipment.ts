@@ -2,15 +2,10 @@ import { GelatoApiBase } from '../base';
 import { AxiosResponse } from 'axios';
 import { Config, ShipmentMethod } from '../types';
 
-interface ListResponse<T> {
-  data: T[];
-  pagination: { total: number; offset: number };
-}
-
 /**
  * Gelato Shipment API client.
  * Provides methods for interacting with the Gelato Shipment API.
- * @see https://dashboard.gelato.com/docs/shipment/methods/
+ * @see https://order.gelatoapis.com
  * @see Docs/APIv4/Gelato_API_3-1_Shipment.md
  */
 export class GelatoShipmentApi extends GelatoApiBase {

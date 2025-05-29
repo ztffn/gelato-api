@@ -437,11 +437,11 @@ export interface ProductBase {
 export interface PatchOperation {
   op: 'replace' | 'add' | 'remove' | 'copy' | 'move' | 'test';
   path: string;
-  value?: any;
+  value?: unknown;
   from?: string;
 }
 
-export type Gelato = any; // Placeholder for the Gelato type
+export type Gelato = unknown; // Placeholder for the Gelato type
 
 export interface OrderPatchRequest {
   orderType?: OrderType;

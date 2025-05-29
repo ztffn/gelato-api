@@ -7,11 +7,10 @@ import {
   OrderSearchRequest,
   OrderSearch,
   OrderQuoteRequest,
-  OrderQuote,
   OrderShippingAddress,
   PatchOperation,
-  OrderPatchRequest,
   OrderQuoteResponse,
+  OrderPatchRequest,
 } from '../types';
 
 // Define a generic ListResponse if not already suitable in types.ts
