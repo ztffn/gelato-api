@@ -1,0 +1,171 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+
+# SwiftFrame Project Rules (.mdc)
+
+## Project Overview
+SwiftFrame is a Next.js monorepo implementing a Landing Page and AR POC for frame visualization.
+
+## Technology Stack
+- Next.js 14 (App Router)
+- React 19
+- TypeScript 5.5
+- Tailwind UI
+- Node >= 20
+- npm >= 10
+- Supabase
+- React Three Fiber
+- @react-three/xr
+- Google <model-viewer>
+
+## Code Style & Standards
+
+### TypeScript
+- Strict mode enabled
+- No `any` types unless absolutely necessary
+- Use type inference where possible
+- Document complex types
+
+### React
+- Functional components only
+- Custom hooks for shared logic
+- Props interfaces must be defined
+- Use React.memo() for performance optimization
+
+### File Structure
+```
+swiftframe/
+├── apps/
+│   └── web/
+│       ├── app/
+│       ├── components/
+│       ├── lib/
+│       └── types/
+└── packages/
+    └── ui/
+```
+
+### Naming Conventions
+- Components: PascalCase
+- Functions: camelCase
+- Files: kebab-case
+- Constants: UPPER_SNAKE_CASE
+- Types/Interfaces: PascalCase
+
+### Component Structure
+```typescript
+import { type FC } from 'react'
+
+interface Props {
+  // props definition
+}
+
+export const Component: FC<Props> = () => {
+  // implementation
+}
+```
+
+### Import Order
+1. React/Next.js imports
+2. External libraries
+3. Internal components
+4. Types/interfaces
+5. Utils/helpers
+6. Styles
+
+### State Management
+- Use React Query for server state
+- Context API for global UI state
+- Local state with useState/useReducer
+
+## Testing
+- Jest for unit tests
+- React Testing Library
+- Cypress for E2E (future)
+- Test coverage minimum: 70%
+
+## Performance Guidelines
+- Lazy loading for routes
+- Image optimization
+- Code splitting
+- Bundle size monitoring
+
+## Git Workflow
+- Branch naming: feature/, bugfix/, hotfix/
+- Commit message format: 
+  - feat: 
+  - fix: 
+  - chore: 
+  - docs: 
+  - style: 
+  - refactor: 
+  - test: 
+- Pull request template required
+- Linear history (rebase preferred)
+
+## Documentation
+- JSDoc for complex functions
+- README.md in each package
+- API documentation required
+- Architecture decisions in ADR format
+
+## Security
+- No secrets in code
+- Environment variables validation
+- Input sanitization
+- Regular dependency updates
+- XSS prevention measures
+
+## AR Implementation
+- Fallback strategy for non-supported devices
+- Performance optimization for 3D models
+- Asset optimization pipeline
+- Error handling for AR sessions
+
+## Error Handling
+- Custom error boundaries
+- Structured error responses
+- Logging strategy
+- User-friendly error messages
+
+## Accessibility
+- WCAG 2.1 AA compliance
+- Semantic HTML
+- Keyboard navigation
+- Screen reader support
+- Color contrast requirements
+
+## Build & Deploy
+- Vercel deployment
+- Preview deployments
+- Environment-specific builds
+- Build optimization
+
+## Code Review
+- Two approvals required
+- Performance impact reviewed
+- Security implications checked
+- Documentation updated
+- Tests included
+
+## Dependencies
+- Minimize external dependencies
+- Version pinning required
+- Regular audits
+- Peer dependencies documented
+
+## Monitoring & Analytics
+- Error tracking setup
+- Performance monitoring
+- Usage analytics
+- Load testing metrics
+
+## Development Environment
+- VSCode settings provided
+- EditorConfig
+- Prettier config
+- ESLint rules
+- Husky pre-commit hooks

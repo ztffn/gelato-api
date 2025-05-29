@@ -29,15 +29,18 @@ export class GelatoApiBase {
    * @returns {Promise<T>} A promise that resolves with the response data or rejects with an error.
    */
   protected async handleResponse<T>(promise: Promise<AxiosResponse<T>>): Promise<T> {
-    try {
-      const response = await promise;
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const message = error.response?.data?.message || error.message;
-        throw new Error(`API Error: ${message}`);
-      }
-      throw error;
-    }
+    return promise
+      .then((response) => {
+        console.log('Response:', response.data);
+        return response.data;
+      })
+      .catch((error) => {
+        console.error('Request failed:', error.config);
+        if (axios.isAxiosError(error)) {
+          const message = error.response?.data?.message || error.message;
+          throw new Error(`API Error: ${message}`);
+        }
+        throw error;
+      });
   }
 }

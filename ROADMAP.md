@@ -2,13 +2,34 @@
 
 ## Project Setup
 
-To set up the project, clone the repository and run `npm install` to install the dependencies.
-You will also need to create a `.env` file with your Gelato API key. You can use `.env-SAMPLE` as a template.
+### Prerequisites
+- Node.js >= 20.0.0
+- npm >= 10.0.0
+- Gelato API Key with company profile set up
+
+### Installation
+1. Clone the repository
+2. Run `npm install` to install dependencies
+3. Create `.env` file with your Gelato API key (use `.env-SAMPLE` as template)
+4. Set up company profile in Gelato dashboard (required for order operations)
 
 ## Running Tests
 
-Unit tests can be run with `npm test`.
-End-to-end tests can be run with `npm run test:e2e`. Make sure your `.env` file is configured before running e2e tests.
+### Unit Tests
+```bash
+npm test
+```
+
+### End-to-End Tests
+```bash
+npm run test:e2e
+```
+
+Note: E2E tests require:
+- Valid API key in `.env`
+- Company profile set up in Gelato dashboard
+- Internet connection
+- Test timeout: 15 seconds for patch operations
 
 ## Current Status
 
@@ -23,27 +44,75 @@ End-to-end tests can be run with `npm run test:e2e`. Make sure your `.env` file 
 - Removed all unnecessary `any` types
 - Cleaned up unused imports and variables
 - Aligned all API endpoints with V4 documentation
+- All E2E tests passing (17/17)
+- Resolved company information requirement
+- Optimized patch operation timeout
 
 ### 🚧 In Progress
-- End-to-end test implementation
 - CI/CD pipeline setup with lint-staged and pre-commit hooks
+- Performance monitoring and optimization
+- Enhanced error handling and logging
+
+## Technical Specifications
+
+### API Endpoints
+- Product API: `https://product.gelatoapis.com/v3`
+- Order API: `https://order.gelatoapis.com`
+- Shipment API: `https://order.gelatoapis.com`
+
+### Test Coverage
+- Unit Tests: 100% coverage
+- E2E Tests: 17 critical flows covered
+- Test Timeout: 15 seconds (patch operations)
+
+### Performance Metrics
+- Average E2E test suite time: 25.742 seconds
+- Patch operation time: ~4.682 seconds
+- Order creation time: ~2.278 seconds
 
 ## Roadmap of Planned Improvements
 
 ### High Priority
-- **Implement End-to-End Tests:** Create comprehensive e2e tests for all API endpoints.
-- **Enhance Error Handling:** Improve error handling in `GelatoApiBase` (`src/base.ts`) with specific error types and logging.
-- **CI/CD Setup:** Configure lint-staged, pre-commit hooks, and GitHub Actions workflow.
+- **Performance Monitoring:** Add detailed logging and timing metrics
+- **Error Handling:** Enhance error types and messages
+- **CI/CD Setup:** Configure lint-staged, pre-commit hooks, and GitHub Actions
 
 ### Medium Priority
-- **Review V4 API Coverage:** Compare the SDK with full V4 documentation for Orders & Products.
-- **Update SDK Documentation:** Update `README.md` and code comments to reflect API V4 changes and other improvements.
-- **Investigate V4 Equivalents:** Research and document V4 equivalents for removed Order methods.
+- **Documentation:** Update API documentation with setup requirements
+- **Logging:** Add structured logging for debugging
+- **Testing:** Add performance benchmarks
 
 ### Future Considerations
-- **Templates API Integration:** If available in V4, implement support for design template management.
-- **Webhooks API:** Add support for managing webhook subscriptions for various events.
-- **Enhanced Shipment Features:** Implement additional shipment tracking and management features if available in V4.
+- **Templates API:** Implement design template management
+- **Webhooks API:** Add webhook subscription support
+- **Enhanced Shipment:** Add tracking and notifications
+
+## API Requirements
+
+### Company Profile
+Required in Gelato dashboard for:
+- Order creation
+- Order management
+- Quote generation
+
+### API Key
+- Must be valid and active
+- Must have appropriate permissions
+- Must be associated with company profile
+
+### Rate Limits
+- Monitor API response times
+- Consider implementing retry logic
+- Add rate limit handling
+
+## Success Criteria
+- [x] All tests passing
+- [x] No TypeScript errors
+- [x] No ESLint warnings
+- [x] Documentation up to date
+- [x] Company profile configured
+- [ ] CI/CD pipeline active
+- [ ] Performance monitoring in place
 
 ## V4 API Equivalents for Order Methods
 

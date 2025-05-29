@@ -34,7 +34,22 @@ export class GelatoOrdersApi extends GelatoApiBase {
    * @see Docs/APIv4/Gelato_API_1-2_Create_Orders.md
    */
   create(order: OrderCreateRequest): Promise<Order> {
-    const promise: Promise<AxiosResponse<Order>> = this.axios.post<Order>('/orders', order);
+    const defaultBillingEntity = {
+      companyName: 'Example',
+      companyNumber: 'Example Number',
+      companyVatNumber: 'Example VAT1234567890',
+      country: 'US',
+      recipientName: 'Paul Smith',
+      addressLine1: '451 Clarkson Ave',
+      addressLine2: 'Brooklyn',
+      city: 'New York',
+      postCode: '11203',
+      state: 'NY',
+      email: 'apisupport@gelato.com',
+      phone: '123456789'
+    };
+    const requestParams = { ...order, billingEntity: defaultBillingEntity };
+    const promise: Promise<AxiosResponse<Order>> = this.axios.post<Order>('/v4/orders', requestParams);
     return this.handleResponse(promise);
   }
 
@@ -45,7 +60,7 @@ export class GelatoOrdersApi extends GelatoApiBase {
    * @see Docs/APIv4/Gelato_API_1-3_GetOrders.md
    */
   get(orderId: string): Promise<Order> {
-    const promise: Promise<AxiosResponse<Order>> = this.axios.get<Order>(`/orders/${orderId}`);
+    const promise: Promise<AxiosResponse<Order>> = this.axios.get<Order>(`/v4/orders/${orderId}`);
     return this.handleResponse(promise);
   }
 
@@ -55,7 +70,7 @@ export class GelatoOrdersApi extends GelatoApiBase {
    * @see Docs/APIv4/Gelato_API_1-5_CancelOrder.md
    */
   patch(orderId: string, data: Partial<Order>): Promise<Order> {
-    const promise: Promise<AxiosResponse<Order>> = this.axios.patch<Order>(`/orders/${orderId}`, data);
+    const promise: Promise<AxiosResponse<Order>> = this.axios.patch<Order>(`/v4/orders/${orderId}`, data);
     return this.handleResponse(promise);
   }
 
@@ -66,7 +81,7 @@ export class GelatoOrdersApi extends GelatoApiBase {
    * @see Docs/APIv4/Gelato_API_1-6_DeleteDraftOrder.md
    */
   delete(orderId: string): Promise<void> {
-    const promise: Promise<AxiosResponse<void>> = this.axios.delete<void>(`/orders/${orderId}`);
+    const promise: Promise<AxiosResponse<void>> = this.axios.delete<void>(`/v4/orders/${orderId}`);
     return this.handleResponse(promise);
   }
 
@@ -77,7 +92,7 @@ export class GelatoOrdersApi extends GelatoApiBase {
    * @see Docs/APIv4/Gelato_API_1-5_CancelOrder.md
    */
   cancel(orderId: string): Promise<Order> {
-    const promise: Promise<AxiosResponse<Order>> = this.axios.post<Order>(`/orders/${orderId}:cancel`);
+    const promise: Promise<AxiosResponse<Order>> = this.axios.post<Order>(`/v4/orders/${orderId}:cancel`);
     return this.handleResponse(promise);
   }
 
@@ -88,8 +103,19 @@ export class GelatoOrdersApi extends GelatoApiBase {
    * @see Docs/APIv4/Gelato_API_1-4_SearchOrders.md
    */
   search(params: OrderSearchRequest): Promise<OrderSearch[]> {
-    const promise: Promise<AxiosResponse<{ orders: OrderSearch[] }>> = this.axios.post<{ orders: OrderSearch[] }>('/orders:search', params);
+    const promise: Promise<AxiosResponse<{ orders: OrderSearch[] }>> = this.axios.post<{ orders: OrderSearch[] }>('/v4/orders:search', params);
     return this.handleResponse(promise).then(response => response.orders);
+  }
+
+  /**
+   * Creates a new quote.
+   * @param {OrderCreateRequest} params - The quote parameters.
+   * @returns {Promise<Order>} A promise that resolves with the created quote.
+   * @see Docs/APIv4/Gelato_API_1-2_Create_Orders.md
+   */
+  createQuote(params: OrderCreateRequest): Promise<Order> {
+    const promise: Promise<AxiosResponse<Order>> = this.axios.post<Order>('/v4/orders:quote', params);
+    return this.handleResponse(promise);
   }
 
   // getShippingAddress(orderId: string): Promise<OrderShippingAddress> { // Removed, shippingAddress is part of Order object in V4

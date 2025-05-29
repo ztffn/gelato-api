@@ -122,7 +122,7 @@ export class GelatoOrdersV3Api extends GelatoApiBase {
    * @see https://docs.gelato.com/reference/getorderquotes
    */
   quote(params: OrderQuoteRequest): Promise<OrderQuoteResponse> {
-    const promise: Promise<AxiosResponse<OrderQuoteResponse>> = this.axios.post<OrderQuoteResponse>('/v3/orders/quote', params);
+    const promise: Promise<AxiosResponse<OrderQuoteResponse>> = this.axios.post<OrderQuoteResponse>('/v4/orders:quote', params);
     return this.handleResponse(promise);
   }
 

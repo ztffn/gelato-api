@@ -38,8 +38,8 @@ export class GelatoProductApi extends GelatoApiBase {
    * @see Docs/APIv4/Gelato_API_2-2-1_ListCatalogs.md
    */
   getCatalogs(): Promise<ProductCatalog[]> {
-    const promise: Promise<AxiosResponse<ProductCatalog[]>> = this.axios.get<ProductCatalog[]>('/catalogs');
-    return this.handleResponse(promise);
+    const promise: Promise<AxiosResponse<{ data: ProductCatalog[] }>> = this.axios.get<{ data: ProductCatalog[] }>('/catalogs');
+    return this.handleResponse(promise).then(res => res.data);
   }
 
   /**

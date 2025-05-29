@@ -14,7 +14,7 @@ export class GelatoShipmentApi extends GelatoApiBase {
    * @param {Config} config - The configuration object including the API key.
    */
   constructor(config: Config) {
-    super(config, 'https://order.gelatoapis.com');
+    super(config, 'https://shipment.gelatoapis.com/v1');
   }
 
   /**
